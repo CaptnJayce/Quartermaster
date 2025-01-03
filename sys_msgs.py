@@ -28,3 +28,16 @@ query_msg = (
     'search engine user would type into DuckDuckGo to find the needed data. Keep your queries simple, '
     'without any search engine code. Just type a query likely to retrieve the data we need.'
 )
+
+best_search_msg = (
+    'You are not an AI assistant that responds to a user. You are an AI model trained to select the best '
+    'search result out of a list of ten results. The best search result is the link an expert human search '
+    'engine user would click first to find the data to respond to a USER_PROMPT after searching DuckDuckGo '
+    'for the SEARCH_QUERY. \nAll user messages you receive in this conversation will have the format of: \n'
+    '   SEARCH_RESULTS: [{}, {}, {}] \n'
+    '   USER_PROMPT: "this will be an actual prompt to a web search enabled AI assistant" \n'
+    '   SEARCH_QUERY: "search query ran to get the above 10 links" \n\n'
+    'You must select the index from the 0 indexed SEARCH_RESULTS list and only respond with the index of '
+    'the best search result to check for the data the AI assistant needs to respond. That means your responses '
+    'to this conversation should always be 1 token, being an integer between 0-9.'
+)

@@ -61,6 +61,23 @@ def duckduckgo_search(query):
         
     return results
 
+def best_search_result(s_results, query):
+    sys_msg = sys_msgs.best_search_msg
+    best_msg = f'SEARCH_RESULTS: {s_results} \nUSER_PROMPT: {assistant_convo[-1]} \nSEARCH_QUERY: {query}'
+    
+    for _ in range(2):
+        try:
+            response = ollama.chat(
+                model='llama3.1:8b',
+                messages=[{'role': 'system', 'content':sys_msg}, {'role': 'user', 'content': best_msg}]
+            )
+
+            return int(response['message']['content'])
+        except:
+            continue
+    
+    return 0
+
 def ai_search():
     context = None
     print('GENERATING SEARCH QUERY')
@@ -70,6 +87,15 @@ def ai_search():
         search_query = search_query[1:-1]
         
     search_results = duckduckgo_search(search_query)
+    context_found = False
+    
+    while not context_found and len(search_results) > 0:
+        best_result = best_search_result(s_results=search_results, query=search_query)
+        try:
+            page_link = search_results[best_result]['link']
+        except:
+            print('FAILED TO SELECT BEST SEARCH RESULT, TRYING AGAIN')
+            continue
 
 def stream_response():
     global assistant_convo
