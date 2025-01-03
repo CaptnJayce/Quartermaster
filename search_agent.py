@@ -31,6 +31,8 @@ def query_generator():
         model='llama3.1:8b',
         messages=[{'role': 'system', 'content':sys_msg}, {'role': 'user', 'content': query_msg}]
     )
+    
+    return response['message']['content']
 
 def duckduckgo_search(query):
     headers = {
@@ -48,7 +50,7 @@ def duckduckgo_search(query):
         if i > 10:
             break
         
-        title_tag = result.find('a', class_='result_a')
+        title_tag = result.find('a', class_='result__a')
         if not title_tag:
             continue
         
@@ -99,7 +101,7 @@ def ai_search():
         
     search_results = duckduckgo_search(search_query)
     context_found = False
-    print(f'{Fore.LIGHTRED_EX} FOUND {len(search_results)} SEARCH RESULTS {Style.RESET_ALL}')
+    print(f'{Fore.LIGHTRED_EX}FOUND {len(search_results)} SEARCH RESULTS {Style.RESET_ALL}')
 
     while not context_found and len(search_results) > 0:
         best_result = best_search_result(s_results=search_results, query=search_query)
@@ -134,7 +136,7 @@ def contains_data_needed(search_content, query):
         print(f'{Fore.LIGHTRED_EX}DATA NOT RELEVANT: {query} {Style.RESET_ALL}')
         return False
 
-def stream_response():
+def stream_assistant_response():
     global assistant_convo
     response_stream = ollama.chat(model='llama3.1:8b', messages=assistant_convo, stream=True)
     complete_response = ''
@@ -151,7 +153,7 @@ def main():
     global assistant_convo
     
     while True:
-        prompt = input(f'{Fore.LIGHTGREEN_EX}USER: \n')
+        prompt = input(f'{Fore.LIGHTGREEN_EX}USER:')
         assistant_convo.append({'role': 'user', 'content': prompt})
         
         if search_or_not():
@@ -167,7 +169,7 @@ def main():
             
             assistant_convo.append({'role': 'user', 'content': prompt})
 
-        stream_response()
+        stream_assistant_response()
     
 if __name__ == '__main__':
     main()
