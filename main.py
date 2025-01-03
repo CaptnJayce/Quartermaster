@@ -3,7 +3,9 @@ import sys_msgs
 import requests
 import trafilatura
 from bs4 import BeautifulSoup
+from colorama import init, Fore, Style
 
+init(autoreset=True)
 assistant_convo = [sys_msgs.assistant_msg]
 
 def search_or_not():
@@ -88,25 +90,49 @@ def scrape_webpage(url):
 
 def ai_search():
     context = None
-    print('GENERATING SEARCH QUERY')
+    print(f'{Fore.LIGHTRED_EX}GENERATING SEARCH QUERY {Style.RESET_ALL}')
     search_query = query_generator()
-    
+    print(f'{Fore.LIGHTRED_EX}SEARCHING DuckDuckGo FOR: {search_query}{Style.RESET_ALL}')
+
     if search_query[0] == '"':
         search_query = search_query[1:-1]
         
     search_results = duckduckgo_search(search_query)
     context_found = False
-    
+    print(f'{Fore.LIGHTRED_EX} FOUND {len(search_results)} SEARCH RESULTS {Style.RESET_ALL}')
+
     while not context_found and len(search_results) > 0:
         best_result = best_search_result(s_results=search_results, query=search_query)
         try:
             page_link = search_results[best_result]['link']
         except:
-            print('FAILED TO SELECT BEST SEARCH RESULT, TRYING AGAIN')
+            print(f'{Fore.LIGHTRED_EX}FAILED TO SELECT BEST SEARCH RESULT, TRYING AGAIN{Style.RESET_ALL}')
             continue
         
         page_text = scrape_webpage(page_link)
         search_results.pop(best_result)
+        if page_text and contains_data_needed(search_content=page_text, query=search_query):
+            context=page_text
+            context_found = True
+            
+    return context
+
+def contains_data_needed(search_content, query):
+    sys_msg = sys_msgs.contains_data_msg
+    needed_prompt = f'PAGE_TEXT: {search_content} \nUSER_PROMPT: {assistant_convo[-1]} \nSEARCH_QUERY: {query}'
+    response = ollama.chat(
+        model='llama3.1:8b',
+        messages=[{'role': 'system', 'content': sys_msg}, {'role': 'user', 'content': needed_prompt}]
+    )
+    
+    content = response['message']['content']
+    
+    if 'true' in content.lower():
+        print(f'{Fore.LIGHTRED_EX}DATA FOUND FOR QUERY: {query} {Style.RESET_ALL}')
+        return True
+    else:
+        print(f'{Fore.LIGHTRED_EX}DATA NOT RELEVANT: {query} {Style.RESET_ALL}')
+        return False
 
 def stream_response():
     global assistant_convo
@@ -115,7 +141,7 @@ def stream_response():
     print('QT:')
 
     for chunk in response_stream:
-        print(chunk['message']['content'], end='', flush=True)
+        print(f'{Fore.WHITE}{chunk['message']['content']}{Style.RESET_ALL}', end='', flush=True)
         complete_response += chunk['message']['content']
         
     assistant_convo.append({'role': 'assistant', 'content': complete_response})
@@ -125,11 +151,21 @@ def main():
     global assistant_convo
     
     while True:
-        user_input = input('USER: \n')
-        assistant_convo.append({'role': 'user', 'content': user_input})
+        prompt = input(f'{Fore.LIGHTGREEN_EX}USER: \n')
+        assistant_convo.append({'role': 'user', 'content': prompt})
         
         if search_or_not():
             context = ai_search()
+            assistant_convo = assistant_convo[:-1]
+            
+            if context:
+                prompt = f'SEARCH RESULT: {context} \n\nUSER PROMPT: {prompt}'
+            else:
+                prompt = (
+                    f'USER PROMPT: \n{prompt} \n\n FAILED SEARCH'
+                )
+            
+            assistant_convo.append({'role': 'user', 'content': prompt})
 
         stream_response()
     
