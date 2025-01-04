@@ -1,27 +1,51 @@
 import ollama
-import sys_msgs
 import requests
+import sys_msgs
 import trafilatura
 from bs4 import BeautifulSoup
 from colorama import init, Fore, Style
+from datetime import datetime
+import threading
+import time
 
 init(autoreset=True)
-assistant_convo = [sys_msgs.assistant_msg]
+
+current_time = None
+time_lock = threading.Lock()
+
+def update_time():
+    global current_time
+    while True:
+        now = datetime.now()
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        time.sleep(1)
+
+def generate_assistant_msg():
+    global current_time
+    with time_lock:
+        if current_time:
+            return {
+                'role': 'system',
+                'content': (
+                    f'You are an AI assistant with another AI model working to get live data from search '
+                    f'engine results. The current date and time is {current_time}. Use this information as '
+                    f'context to respond intelligently and helpfully to user prompts.'
+                )
+            }
+    return None
 
 def search_or_not():
-    sys_msg = sys_msgs.search_or_not_msg
+    sys_msg = generate_assistant_msg()
+    if sys_msg is None:
+        return False
     
     response = ollama.chat(
         model='llama3.1:8b',
-        messages=[{'role': 'system', 'content': sys_msg}, assistant_convo[-1]]
+        messages=[sys_msg, assistant_convo[-1]]
     )
 
     content = response['message']['content']
-    
-    if 'true' in content.lower():
-        return True
-    else:
-        return False
+    return 'true' in content.lower()
 
 def query_generator():
     sys_msg = sys_msgs.query_msg
@@ -138,38 +162,37 @@ def contains_data_needed(search_content, query):
 
 def stream_assistant_response():
     global assistant_convo
-    response_stream = ollama.chat(model='llama3.1:8b', messages=assistant_convo, stream=True)
+    sys_msg = generate_assistant_msg()
+    if sys_msg is None:
+        print("Time not available yet. Unable to process response.")
+        return
+    
+    response_stream = ollama.chat(model='llama3.1:8b', messages=[sys_msg] + assistant_convo, stream=True)
     complete_response = ''
     print('QT:')
 
     for chunk in response_stream:
-        print(f'{Fore.WHITE}{chunk['message']['content']}{Style.RESET_ALL}', end='', flush=True)
-        complete_response += chunk['message']['content']
-        
+        print(f'{Fore.WHITE}{chunk["message"]["content"]}{Style.RESET_ALL}', end='', flush=True)
+        complete_response += chunk["message"]["content"]
+
     assistant_convo.append({'role': 'assistant', 'content': complete_response})
     print('\n\n')
 
 def main():
     global assistant_convo
-    
+
     while True:
-        prompt = input(f'{Fore.LIGHTGREEN_EX}USER:')
+        prompt = input(f'{Fore.LIGHTGREEN_EX}USER: ')
         assistant_convo.append({'role': 'user', 'content': prompt})
         
         if search_or_not():
-            context = ai_search()
-            assistant_convo = assistant_convo[:-1]
-            
-            if context:
-                prompt = f'SEARCH RESULT: {context} \n\nUSER PROMPT: {prompt}'
-            else:
-                prompt = (
-                    f'USER PROMPT: \n{prompt} \n\n FAILED SEARCH'
-                )
-            
-            assistant_convo.append({'role': 'user', 'content': prompt})
+            print(f'{Fore.LIGHTRED_EX}Searching for context...{Style.RESET_ALL}')
+        else:
+            stream_assistant_response()
 
-        stream_assistant_response()
-    
 if __name__ == '__main__':
+    assistant_convo = []
+    time_thread = threading.Thread(target=update_time, daemon=True)
+    time_thread.start()
+
     main()
