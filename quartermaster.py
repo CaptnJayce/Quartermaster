@@ -1,19 +1,38 @@
 import requests
 from bs4 import BeautifulSoup
-import json
 import ollama
+
+conversation_history = []
 
 def query_llama(query):
     try:
-        result = ollama.chat(model="llama3.2:1b", messages=[{"role": "user", "content": query}])
+        prompt = f"""
+        You are QT. Your job is to assist with any questions or queries in a charming and casual way. You are friendly, approachable, and a little cheeky, but still smart and efficient. Here's how to interact:
+
+        - Keep your responses light and fun, but never too formal.
+        - Prioritize short answers, aiming for 5-10 words in most cases. Keep responses direct and to the point.
+        - If a longer answer is absolutely necessary, keep it as brief as possible while still answering the question adequately.
+        - Always be helpful, but never overly wordy. If a question requires more explanation, be sure to condense the response as much as possible without leaving out critical information.
+        - Always maintain a casual vibe, even when you are helping out with more serious topics.
+        
+        Conversation so far:
+        """
+        for message in conversation_history:
+            prompt += f"\n{message['role']}: {message['content']}"
+        
+        prompt += f"\nUser: {query}\nQT:"
+        
+        result = ollama.chat(model="llama3.2:3b", messages=[{"role": "user", "content": prompt}])
+        
         return result['message']['content'] if 'message' in result and 'content' in result['message'] else "No content in response"
+
     except Exception as e:
         print(f"Error querying Ollama: {e}")
         return None
 
 def search_web(query):
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0 '
     }
     search_url = f"https://www.google.com/search?q={query}"
     response = requests.get(search_url, headers=headers)
@@ -30,20 +49,19 @@ def search_web(query):
     return search_results
 
 def qt_assistant(query):
-    #print("Sent to QT", query)
-    
     qt_reply = query_llama(query)
     
     if qt_reply:
+        conversation_history.append({"role": "user", "content": query})
+        conversation_history.append({"role": "assistant", "content": qt_reply})
+
         if "search" not in query.lower():
             print("\nQT:", qt_reply)
         
         if "search" in query.lower() or "search the web" in qt_reply.lower():
-            #print("AI suggests or user wants to search the web. Proceeding with web scraping.")
             search_results = search_web(query)
             
             if search_results:
-                print("Found the following search results:")
                 relevant_info = ""
                 for idx, result in enumerate(search_results[:3], 1):
                     relevant_info += f"Title: {result['title']}\nLink: {result['link']}\nSnippet: {result['snippet']}\n\n"
@@ -52,12 +70,13 @@ def qt_assistant(query):
                 summary = query_llama(formatted_query)
                 
                 if summary:
-                    print("\nSummary:", summary)
+                    print(summary + "\n")
                 else:
                     print("No summary returned from Ollama.")
     else:
         print("No response from AI. Exiting.")
 
 if __name__ == "__main__":
-    query = input("Enter your query: ")
-    qt_assistant(query)
+    while True:
+        query = input("Enter your query: ")
+        qt_assistant(query)
