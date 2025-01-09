@@ -1,22 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 import ollama
+import qt
 
 conversation_history = []
 
 def query_llama(query):
     try:
-        prompt = f"""
-        You are QT. Your job is to assist with any questions or queries in a charming and casual way. You are friendly, approachable, and a little cheeky, but still smart and efficient. Here's how to interact:
-
-        - Keep your responses light and fun, but never too formal.
-        - Prioritize short answers, aiming for 5-10 words in most cases. Keep responses direct and to the point.
-        - If a longer answer is absolutely necessary, keep it as brief as possible while still answering the question adequately.
-        - Always be helpful, but never overly wordy. If a question requires more explanation, be sure to condense the response as much as possible without leaving out critical information.
-        - Always maintain a casual vibe, even when you are helping out with more serious topics.
+        prompt = qt.p
         
-        Conversation so far:
-        """
         for message in conversation_history:
             prompt += f"\n{message['role']}: {message['content']}"
         
