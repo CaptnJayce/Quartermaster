@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import ollama
-import qt
+import qt # create a file called qt.py and add your prompt there (p = "")
 
 conversation_history = []
 
