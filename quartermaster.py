@@ -1,9 +1,33 @@
 import requests
 from bs4 import BeautifulSoup
 import ollama
-import qt # create a file called qt.py and add your prompt there (p = "")
+import edge_tts
+import pygame
+import asyncio
+import os
+import qt  # Create a file called qt.py and add your prompt there (p = "")
 
 conversation_history = []
+
+# Currently using en-IE-EmilyNeural
+VOICES = ['en-AU-NatashaNeural', 'en-CA-ClaraNeural', 'en-GB-LibbyNeural', 'en-IN-NeerjaNeural', 'en-IE-EmilyNeural']
+VOICE = VOICES[4]
+OUTPUT_FILE = "response.mp3"
+
+async def generate_speech(text: str) -> None:
+    communicate = edge_tts.Communicate(text, VOICE)
+    await communicate.save(OUTPUT_FILE)
+
+def play_audio(file_path):
+    pygame.mixer.init()
+    pygame.mixer.music.load(file_path)
+    pygame.mixer.music.play()
+
+    while pygame.mixer.music.get_busy():
+        pygame.time.Clock().tick(10)
+
+    pygame.mixer.music.stop()
+    pygame.mixer.quit()
 
 def query_llama(query):
     try:
@@ -49,6 +73,16 @@ def qt_assistant(query):
 
         if "search" not in query.lower():
             print("\nQT:", qt_reply)
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                loop.run_until_complete(generate_speech(qt_reply))
+                play_audio(OUTPUT_FILE)
+            finally:
+                loop.close()
+
+            if os.path.exists(OUTPUT_FILE):
+                os.remove(OUTPUT_FILE)
         
         if "search" in query.lower() or "search the web" in qt_reply.lower():
             search_results = search_web(query)
@@ -63,6 +97,16 @@ def qt_assistant(query):
                 
                 if summary:
                     print(summary + "\n")
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    try:
+                        loop.run_until_complete(generate_speech(summary))
+                        play_audio(OUTPUT_FILE)
+                    finally:
+                        loop.close()
+
+                    if os.path.exists(OUTPUT_FILE):
+                        os.remove(OUTPUT_FILE)
                 else:
                     print("No summary returned from Ollama.")
     else:
