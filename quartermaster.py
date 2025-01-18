@@ -12,10 +12,11 @@ conversation_history = []
 # Currently using en-IE-EmilyNeural
 VOICES = ['en-AU-NatashaNeural', 'en-CA-ClaraNeural', 'en-GB-LibbyNeural', 'en-IN-NeerjaNeural', 'en-IE-EmilyNeural']
 VOICE = VOICES[4]
+SPEED = "+50%"
 OUTPUT_FILE = "response.mp3"
 
 async def generate_speech(text: str) -> None:
-    communicate = edge_tts.Communicate(text, VOICE)
+    communicate = edge_tts.Communicate(text, VOICE, rate = SPEED)
     await communicate.save(OUTPUT_FILE)
 
 def play_audio(file_path):
