@@ -83,52 +83,53 @@ def search_web(query):
     return search_results
 
 def qt_assistant(query):
-    qt_reply = query_llama(query)
-    
-    if qt_reply:
-        conversation_history.append({"role": "user", "content": query})
-        conversation_history.append({"role": "assistant", "content": qt_reply})
-
-        if "search" not in query.lower():
-            print("\nQT:", qt_reply)
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                loop.run_until_complete(generate_speech(qt_reply))
-                play_audio(OUTPUT_FILE)
-            finally:
-                loop.close()
-
-            if os.path.exists(OUTPUT_FILE):
-                os.remove(OUTPUT_FILE)
+    if "qt" in query.lower() or "cutie" in query.lower(): # qt will often be misheard as cutie
+        qt_reply = query_llama(query)
         
-        if "search" in query.lower() or "search the web" in qt_reply.lower():
-            search_results = search_web(query)
-            
-            if search_results:
-                relevant_info = ""
-                for idx, result in enumerate(search_results[:3], 1):
-                    relevant_info += f"Title: {result['title']}\nLink: {result['link']}\nSnippet: {result['snippet']}\n\n"
-                
-                formatted_query = f"Please summarize the following search results into a concise, human-readable summary:\n\n{relevant_info}"
-                summary = query_llama(formatted_query)
-                
-                if summary:
-                    print(summary + "\n")
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    try:
-                        loop.run_until_complete(generate_speech(summary))
-                        play_audio(OUTPUT_FILE)
-                    finally:
-                        loop.close()
+        if qt_reply:
+            conversation_history.append({"role": "user", "content": query})
+            conversation_history.append({"role": "assistant", "content": qt_reply})
 
-                    if os.path.exists(OUTPUT_FILE):
-                        os.remove(OUTPUT_FILE)
-                else:
-                    print("No summary returned from Ollama.")
+            if "search" not in query.lower():
+                print("\nQT:", qt_reply)
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    loop.run_until_complete(generate_speech(qt_reply))
+                    play_audio(OUTPUT_FILE)
+                finally:
+                    loop.close()
+
+                if os.path.exists(OUTPUT_FILE):
+                    os.remove(OUTPUT_FILE)
+            
+            if "search" in query.lower() or "search the web" in qt_reply.lower():
+                search_results = search_web(query)
+                
+                if search_results:
+                    relevant_info = ""
+                    for idx, result in enumerate(search_results[:3], 1):
+                        relevant_info += f"Title: {result['title']}\nLink: {result['link']}\nSnippet: {result['snippet']}\n\n"
+                    
+                    formatted_query = f"Please summarize the following search results into a concise, human-readable summary:\n\n{relevant_info}"
+                    summary = query_llama(formatted_query)
+                    
+                    if summary:
+                        print(summary + "\n")
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                        try:
+                            loop.run_until_complete(generate_speech(summary))
+                            play_audio(OUTPUT_FILE)
+                        finally:
+                            loop.close()
+
+                        if os.path.exists(OUTPUT_FILE):
+                            os.remove(OUTPUT_FILE)
+                    else:
+                        print("No summary returned from Ollama.")
     else:
-        print("No response from AI. Exiting.")
+        print("QT not mentioned")
 
 if __name__ == "__main__":
     while True:
