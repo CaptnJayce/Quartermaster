@@ -4,15 +4,19 @@ import ollama
 import edge_tts
 import pygame
 import asyncio
+import speech_recognition as sr
 import os
 import qt  # Create a file called qt.py and add your prompt there (p = "")
+
+# Init recognizer
+r = sr.Recognizer()
 
 conversation_history = []
 
 # Currently using en-IE-EmilyNeural
 VOICES = ['en-AU-NatashaNeural', 'en-CA-ClaraNeural', 'en-GB-LibbyNeural', 'en-IN-NeerjaNeural', 'en-IE-EmilyNeural']
 VOICE = VOICES[4]
-SPEED = "+50%"
+SPEED = "+75%"
 OUTPUT_FILE = "response.mp3"
 
 async def generate_speech(text: str) -> None:
@@ -29,6 +33,19 @@ def play_audio(file_path):
 
     pygame.mixer.music.stop()
     pygame.mixer.quit()
+
+def listen_for_audio():
+    with sr.Microphone() as source:
+        print("Listening...")
+        audio = r.listen(source)
+        said = ""
+        
+        try:
+            said = r.recognize_google(audio)
+            print("You said: " + said)
+        except Exception as e:
+            print("Exception " + str(e))
+    return said
 
 def query_llama(query):
     try:
@@ -115,5 +132,5 @@ def qt_assistant(query):
 
 if __name__ == "__main__":
     while True:
-        query = input("Enter your query: ")
+        query = listen_for_audio()
         qt_assistant(query)
