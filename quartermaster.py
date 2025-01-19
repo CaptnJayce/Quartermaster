@@ -6,7 +6,7 @@ import pygame
 import asyncio
 import speech_recognition as sr
 import os
-import qt  # Create a file called qt.py and add your prompt there (p = "")
+import qt  # Create a file called qt.py and add your prompt there (p = f""" """)
 
 # Init recognizer
 r = sr.Recognizer()
@@ -55,7 +55,6 @@ def query_llama(query):
             prompt += f"\n{message['role']}: {message['content']}"
         
         prompt += f"\nUser: {query}\nQT:"
-        
         result = ollama.chat(model="llama3.2:3b", messages=[{"role": "user", "content": prompt}])
         
         return result['message']['content'] if 'message' in result and 'content' in result['message'] else "No content in response"
