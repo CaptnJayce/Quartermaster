@@ -20,7 +20,7 @@ SPEED = "+75%"
 OUTPUT_FILE = "response.mp3"
 
 async def generate_speech(text: str) -> None:
-    communicate = edge_tts.Communicate(text, VOICE, rate = SPEED)
+    communicate = edge_tts.Communicate(text, VOICE, rate=SPEED)
     await communicate.save(OUTPUT_FILE)
 
 def play_audio(file_path):
@@ -34,12 +34,11 @@ def play_audio(file_path):
     pygame.mixer.music.stop()
     pygame.mixer.quit()
 
-def listen_for_audio():
+def listen_for_audio(prompt="Listening..."):
     with sr.Microphone() as source:
-        print("Listening...")
+        print(prompt)
         audio = r.listen(source)
         said = ""
-        
         try:
             said = r.recognize_google(audio)
             print("You said: " + said)
@@ -50,13 +49,13 @@ def listen_for_audio():
 def query_llama(query):
     try:
         prompt = qt.p
-        
+
         for message in conversation_history:
             prompt += f"\n{message['role']}: {message['content']}"
-        
+
         prompt += f"\nUser: {query}\nQT:"
         result = ollama.chat(model="llama3.2:3b", messages=[{"role": "user", "content": prompt}])
-        
+
         return result['message']['content'] if 'message' in result and 'content' in result['message'] else "No content in response"
 
     except Exception as e:
@@ -72,65 +71,72 @@ def search_web(query):
 
     soup = BeautifulSoup(response.text, 'html.parser')
     search_results = []
-    
+
     for g in soup.find_all(class_='tF2Cxc'):
         title = g.find('h3').text
         link = g.find('a')['href']
         snippet = g.find('div', class_='VwiC3b').text if g.find('div', class_='VwiC3b') else 'No snippet available'
         search_results.append({"title": title, "link": link, "snippet": snippet})
-    
+
     return search_results
 
 def qt_assistant(query):
-    if "qt" in query.lower() or "cutie" in query.lower(): # qt will often be misheard as cutie
-        qt_reply = query_llama(query)
-        
-        if qt_reply:
-            conversation_history.append({"role": "user", "content": query})
-            conversation_history.append({"role": "assistant", "content": qt_reply})
+    qt_reply = query_llama(query)
 
-            if "search" not in query.lower():
-                print("\nQT:", qt_reply)
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                try:
-                    loop.run_until_complete(generate_speech(qt_reply))
-                    play_audio(OUTPUT_FILE)
-                finally:
-                    loop.close()
+    if qt_reply:
+        conversation_history.append({"role": "user", "content": query})
+        conversation_history.append({"role": "assistant", "content": qt_reply})
 
-                if os.path.exists(OUTPUT_FILE):
-                    os.remove(OUTPUT_FILE)
-            
-            if "search" in query.lower() or "search the web" in qt_reply.lower():
-                search_results = search_web(query)
-                
-                if search_results:
-                    relevant_info = ""
-                    for idx, result in enumerate(search_results[:3], 1):
-                        relevant_info += f"Title: {result['title']}\nLink: {result['link']}\nSnippet: {result['snippet']}\n\n"
-                    
-                    formatted_query = f"Please summarize the following search results into a concise, human-readable summary:\n\n{relevant_info}"
-                    summary = query_llama(formatted_query)
-                    
-                    if summary:
-                        print(summary + "\n")
-                        loop = asyncio.new_event_loop()
-                        asyncio.set_event_loop(loop)
-                        try:
-                            loop.run_until_complete(generate_speech(summary))
-                            play_audio(OUTPUT_FILE)
-                        finally:
-                            loop.close()
+        if "search" not in query.lower():
+            print("\nQT:", qt_reply)
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                loop.run_until_complete(generate_speech(qt_reply))
+                play_audio(OUTPUT_FILE)
+            finally:
+                loop.close()
 
-                        if os.path.exists(OUTPUT_FILE):
-                            os.remove(OUTPUT_FILE)
-                    else:
-                        print("No summary returned from Ollama.")
-    else:
-        print("QT not mentioned")
+            if os.path.exists(OUTPUT_FILE):
+                os.remove(OUTPUT_FILE)
+
+        if "search" in query.lower() or "search the web" in qt_reply.lower():
+            search_results = search_web(query)
+
+            if search_results:
+                relevant_info = ""
+                for idx, result in enumerate(search_results[:3], 1):
+                    relevant_info += f"Title: {result['title']}\nLink: {result['link']}\nSnippet: {result['snippet']}\n\n"
+
+                formatted_query = f"Please summarize the following search results into a concise, human-readable summary:\n\n{relevant_info}"
+                summary = query_llama(formatted_query)
+
+                if summary:
+                    print(summary + "\n")
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    try:
+                        loop.run_until_complete(generate_speech(summary))
+                        play_audio(OUTPUT_FILE)
+                    finally:
+                        loop.close()
+
+                    if os.path.exists(OUTPUT_FILE):
+                        os.remove(OUTPUT_FILE)
+                else:
+                    print("No summary returned from Ollama.")
+
+def wake_words():
+    wake_words = ["qt", "quartermaster", "cutie"]
+    while True:
+        said = listen_for_audio(prompt="Say 'Quartermaster' or other wake word")
+        for word in wake_words:
+            if word in said.lower():
+                print(f"Wake word detected: {word}")
+                return
 
 if __name__ == "__main__":
     while True:
-        query = listen_for_audio()
+        wake_words()
+        query = listen_for_audio(prompt="Listening...")
         qt_assistant(query)
