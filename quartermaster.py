@@ -44,7 +44,8 @@ def listen_for_audio(prompt="Listening..."):
             said = r.recognize_google(audio)
             print("You said: " + said)
         except Exception as e:
-            print("Exception " + str(e))
+            pass
+            #print("Exception " + str(e))
     return said
 
 def query_llama(query):
@@ -129,13 +130,19 @@ def qt_assistant(query):
 
 def command_words():
     wake_words = ["qt", "quartermaster", "cutie"]
+    shutdown_words = ["shutdown", "shut down", "exit", "quit"]
+    
     while True:
-        said = listen_for_audio(prompt="Say 'Quartermaster' or another wake word")
+        said = listen_for_audio(prompt="Say 'Quartermaster'")
         for word in wake_words:
-            if word in said.lower():
-                print(f"Wake word detected: {word}")
+            if any(word in said.lower() for word in wake_words) and any(word in said.lower() for word in shutdown_words):
+                print("shutdown")
+                exit()
+            
+            elif any(word in said.lower() for word in wake_words):
+                print("waking")     
                 return True
-
+      
 def listen_with_timer(timeout=10):
     print(f"{timeout} seconds to speak...")
     start_time = time.time()
