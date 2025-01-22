@@ -143,7 +143,7 @@ def command_words():
                 print("waking")     
                 return True
       
-def listen_with_timer(timeout=10):
+def listen_with_timer(timeout):
     print(f"{timeout} seconds to speak...")
     start_time = time.time()
     while time.time() - start_time < timeout:
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     while True:
         command_words()
         while True:
-            query = listen_with_timer(timeout=10)
+            query = listen_with_timer(timeout=5)
             if query:
                 qt_assistant(query)
             else:
