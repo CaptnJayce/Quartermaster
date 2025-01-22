@@ -7,6 +7,7 @@ import asyncio
 import speech_recognition as sr
 import os
 import qt  # Create a file called qt.py and add your prompt there (p = f""" """)
+import time
 
 # Init recognizer
 r = sr.Recognizer()
@@ -126,17 +127,30 @@ def qt_assistant(query):
                 else:
                     print("No summary returned from Ollama.")
 
-def wake_words():
+def command_words():
     wake_words = ["qt", "quartermaster", "cutie"]
     while True:
-        said = listen_for_audio(prompt="Say 'Quartermaster' or other wake word")
+        said = listen_for_audio(prompt="Say 'Quartermaster' or another wake word")
         for word in wake_words:
             if word in said.lower():
                 print(f"Wake word detected: {word}")
-                return
+                return True
+
+def listen_with_timer(timeout=10):
+    print(f"{timeout} seconds to speak...")
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        query = listen_for_audio(prompt="Listening...")
+        if query.strip():
+            return query
+    return None
 
 if __name__ == "__main__":
     while True:
-        wake_words()
-        query = listen_for_audio(prompt="Listening...")
-        qt_assistant(query)
+        command_words()
+        while True:
+            query = listen_with_timer(timeout=10)
+            if query:
+                qt_assistant(query)
+            else:
+                break
