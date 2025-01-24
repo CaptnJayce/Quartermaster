@@ -1,4 +1,4 @@
-from audio import listen_with_timer, play_audio, generate_speech
+from audio import listen_with_timer
 from assistant import qt_assistant, command_words
 import os
 
