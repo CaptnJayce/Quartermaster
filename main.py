@@ -1,6 +1,5 @@
 from audio import listen_with_timer
 from assistant import qt_assistant, command_words
-import os
 
 if __name__ == "__main__":
     while True:
