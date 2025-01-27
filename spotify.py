@@ -27,7 +27,7 @@ device_id = devices['devices'][0]['id']
 # Rewind song
 def rewind_song():
     sp.previous_track(device_id=device_id)
-    
+
 # Skip song
 def skip_song():
     sp.next_track(device_id=device_id)
@@ -35,3 +35,7 @@ def skip_song():
 # Pause song
 def pause_song():
     sp.pause_playback(device_id=device_id)
+
+# Resume song
+def resume_song():
+    sp.start_playback(device_id=device_id)
