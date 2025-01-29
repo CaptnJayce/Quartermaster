@@ -1,5 +1,5 @@
 import spotipy
-import spotipy.util as util
+import spotipy.util
 from spotipy.oauth2 import SpotifyOAuth
 import spotify_id
 
