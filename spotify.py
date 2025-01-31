@@ -8,7 +8,6 @@ import spotify_id
 # SPOTIFY_CLIENT_ID = "your-client-id"
 # SPOTIFY_CLIENT_SECRET = "your-client-secret"
 # SPOTIFY_REDIRECT_URI = "your-redirect-uri"
-playlist_uri = "spotify:playlist:7JAEb1zT2r9FEmYD6Gr8RH?si=08b07f353756472f&nd=1&dlsi=413d4dd0e8f14ac3"
 
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     client_id=spotify_id.SPOTIFY_CLIENT_ID,
@@ -39,9 +38,14 @@ def pause_song():
 
 # Resume song
 def resume_song():
-    sp.start_playback(device_id=device_id)
+    current_playback = sp.current_playback()
     
-# Start Playlist
+    # This check prevents a crash when playing my playlist with already active playback
+    # I have no idea why.
+    if current_playback and current_playback['is_playing']:
+        sp.pause_playback(device_id=device_id)
+    sp.start_playback(device_id=device_id)
+
+# Play playlist
 def play_playlist(playlist_uri, device_id=None):
     sp.start_playback(device_id=device_id, context_uri=playlist_uri)
-    

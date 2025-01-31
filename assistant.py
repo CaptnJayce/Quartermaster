@@ -6,6 +6,7 @@ import os
 import ollama
 
 conversation_history = []
+playlist_uri = "spotify:playlist:7JAEb1zT2r9FEmYD6Gr8RH?si=08b07f353756472f&nd=1&dlsi=413d4dd0e8f14ac3"
 
 def query_llama(query):
     import qt  # prompt should be in qt.py
@@ -84,7 +85,7 @@ def command_words():
                 pause_song()
             if "rewind" in said.lower():
                 rewind_song()
+            if "play playlist" in said.lower():
+                play_playlist(playlist_uri)
             if "play" in said.lower() or "resume" in said.lower():
                 resume_song()
-            if "play" in said.lower() and "playlist" in said.lower():
-                play_playlist()
