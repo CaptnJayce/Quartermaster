@@ -24,6 +24,10 @@ def query_llama(query):
         return None
 
 def qt_assistant(query):
+    wake_words = ["qt", "quartermaster", "cutie"]
+    shutdown_words = ["shutdown", "shut down", "exit", "quit"]
+    spotify_words = ["skip", "next", "pause", "stop", "rewind", "play", "resume", "playlist"]
+    
     qt_reply = query_llama(query)
 
     if qt_reply:
@@ -64,28 +68,21 @@ def qt_assistant(query):
                     if os.path.exists("response.mp3"):
                         os.remove("response.mp3")
 
-def command_words():
-    wake_words = ["qt", "quartermaster", "cutie"]
-    shutdown_words = ["shutdown", "shut down", "exit", "quit"]
-    spotify_words = ["skip", "next", "pause", "stop", "rewind", "play", "resume", "playlist"]
-
-    while True:
-        said = listen_for_audio(prompt="Say 'Quartermaster'")
-        if any(word in said.lower() for word in wake_words) and any(word in said.lower() for word in shutdown_words):
+        if any(word in query.lower() for word in wake_words) and any(word in query.lower() for word in shutdown_words):
             print("shutdown")
             exit()
-        elif any(word in said.lower() for word in wake_words):
+        elif any(word in query.lower() for word in wake_words):
             print("waking")
             return True
         
-        if any(word in said.lower() for word in spotify_words):
-            if "skip" in said.lower() or "next" in said.lower():
+        if any(word in query.lower() for word in spotify_words):
+            if "skip" in query.lower() or "next" in query.lower():
                 skip_song()
-            if "pause" in said.lower() or "stop" in said.lower():
+            if "pause" in query.lower() or "stop" in query.lower():
                 pause_song()
-            if "rewind" in said.lower():
+            if "rewind" in query.lower():
                 rewind_song()
-            if "play playlist" in said.lower():
+            if "play playlist" in query.lower():
                 play_playlist(playlist_uri)
-            if "play" in said.lower() or "resume" in said.lower():
+            if "play" in query.lower() or "resume" in query.lower():
                 resume_song()
