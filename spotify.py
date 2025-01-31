@@ -17,35 +17,47 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
 ))
 
 # Get User's device
-devices = sp.devices()
-if not devices['devices']:
-    print("No devices found")
-    exit()
-
-device_id = devices['devices'][0]['id']
+def get_device_id():
+    devices = sp.devices()
+    if not devices['devices']:
+        print("No devices found")
+        return None
+    return devices['devices'][0]['id']
 
 # Rewind song
 def rewind_song():
-    sp.previous_track(device_id=device_id)
+    device_id = get_device_id()
+    if device_id:
+        sp.previous_track(device_id=device_id)
 
 # Skip song
 def skip_song():
-    sp.next_track(device_id=device_id)
+    device_id = get_device_id()
+    if device_id:
+        sp.next_track(device_id=device_id)
 
 # Pause song
 def pause_song():
-    sp.pause_playback(device_id=device_id)
+    device_id = get_device_id()
+    if device_id:
+        sp.pause_playback(device_id=device_id)
 
 # Resume song
 def resume_song():
-    current_playback = sp.current_playback()
-    
-    # This check prevents a crash when playing my playlist with already active playback
-    # I have no idea why.
-    if current_playback and current_playback['is_playing']:
-        sp.pause_playback(device_id=device_id)
-    sp.start_playback(device_id=device_id)
+    device_id = get_device_id()
+    if device_id:
+        current_playback = sp.current_playback()
+        if current_playback and current_playback['is_playing']:
+            sp.pause_playback(device_id=device_id)
+        sp.start_playback(device_id=device_id)
 
 # Play playlist
-def play_playlist(playlist_uri, device_id=None):
-    sp.start_playback(device_id=device_id, context_uri=playlist_uri)
+def play_playlist(playlist_uri):
+    device_id = get_device_id()
+    if device_id:
+        try:
+            sp.start_playback(device_id=device_id, context_uri=playlist_uri)
+        except spotipy.exceptions.SpotifyException as e:
+            print(f"Error starting playback: {e}")
+    else:
+        print("No active device found.")
