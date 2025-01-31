@@ -1,6 +1,6 @@
 from web_search import search_web
 from audio import generate_speech, listen_for_audio, play_audio
-from spotify import rewind_song, pause_song, skip_song, resume_song
+from spotify import rewind_song, pause_song, skip_song, resume_song, play_playlist
 import asyncio
 import os
 import ollama
@@ -66,7 +66,7 @@ def qt_assistant(query):
 def command_words():
     wake_words = ["qt", "quartermaster", "cutie"]
     shutdown_words = ["shutdown", "shut down", "exit", "quit"]
-    spotify_words = ["skip", "next", "pause", "stop", "rewind", "play", "resume"]
+    spotify_words = ["skip", "next", "pause", "stop", "rewind", "play", "resume", "playlist"]
 
     while True:
         said = listen_for_audio(prompt="Say 'Quartermaster'")
@@ -80,12 +80,11 @@ def command_words():
         if any(word in said.lower() for word in spotify_words):
             if "skip" in said.lower() or "next" in said.lower():
                 skip_song()
-
             if "pause" in said.lower() or "stop" in said.lower():
                 pause_song()
-
             if "rewind" in said.lower():
                 rewind_song()
-                
             if "play" in said.lower() or "resume" in said.lower():
                 resume_song()
+            if "play" in said.lower() and "playlist" in said.lower():
+                play_playlist()
