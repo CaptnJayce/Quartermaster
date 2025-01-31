@@ -1,6 +1,6 @@
 /__pycache__/*
 /venv/*
 .cache
-qt.py
+prompt.py
 response.mp3
 spotify_id.py

@@ -1,5 +1,5 @@
 from web_search import search_web
-from audio import generate_speech, listen_for_audio, play_audio
+from audio import generate_speech, play_audio
 from spotify import rewind_song, pause_song, skip_song, resume_song, play_playlist
 import asyncio
 import os
@@ -9,37 +9,37 @@ conversation_history = []
 playlist_uri = "spotify:playlist:7JAEb1zT2r9FEmYD6Gr8RH?si=08b07f353756472f&nd=1&dlsi=413d4dd0e8f14ac3"
 
 def query_llama(query):
-    import qt  # prompt should be in qt.py
+    import prompt  # prompt should be in prompt.py
 
     try:
-        prompt = qt.p
+        prompt = prompt.p
         for message in conversation_history:
             prompt += f"\n{message['role']}: {message['content']}"
 
-        prompt += f"\nUser: {query}\nQT:"
+        prompt += f"\nUser: {query}\nAssistant:"
         result = ollama.chat(model="llama3.2:3b", messages=[{"role": "user", "content": prompt}])
         return result['message']['content'] if 'message' in result and 'content' in result['message'] else "No content in response"
     except Exception as e:
         print(f"Error querying Ollama: {e}")
         return None
 
-def qt_assistant(query):
-    wake_words = ["qt", "quartermaster", "cutie"]
+def assistant(query):
+    wake_words = ["qt", "quartermaster", "cutie"] # will add option to customise later
     shutdown_words = ["shutdown", "shut down", "exit", "quit"]
     spotify_words = ["skip", "next", "pause", "stop", "rewind", "play", "resume", "playlist"]
     
-    qt_reply = query_llama(query)
+    reply = query_llama(query)
 
-    if qt_reply:
+    if reply:
         conversation_history.append({"role": "user", "content": query})
-        conversation_history.append({"role": "assistant", "content": qt_reply})
+        conversation_history.append({"role": "assistant", "content": reply})
 
         if "search" not in query.lower():
-            print("\nQT:", qt_reply)
+            print("\nAssistant:", reply)
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
-                loop.run_until_complete(generate_speech(qt_reply))
+                loop.run_until_complete(generate_speech(reply))
                 play_audio("response.mp3")
             finally:
                 loop.close()
@@ -47,7 +47,7 @@ def qt_assistant(query):
             if os.path.exists("response.mp3"):
                 os.remove("response.mp3")
 
-        if "search" in query.lower() or "search the web" in qt_reply.lower():
+        if "search" in query.lower() or "search the web" in reply.lower():
             search_results = search_web(query)
             if search_results:
                 relevant_info = ""
@@ -71,9 +71,6 @@ def qt_assistant(query):
         if any(word in query.lower() for word in wake_words) and any(word in query.lower() for word in shutdown_words):
             print("shutdown")
             exit()
-        elif any(word in query.lower() for word in wake_words):
-            print("waking")
-            return True
         
         if any(word in query.lower() for word in spotify_words):
             if "skip" in query.lower() or "next" in query.lower():
