@@ -30,7 +30,23 @@ def assistant(query):
     
     reply = query_llama(query)
 
-    if reply:
+    if any(word in query.lower() for word in wake_words) and any(word in query.lower() for word in shutdown_words):
+        print("shutdown")
+        exit()
+    
+    if any(word in query.lower() for word in spotify_words):
+        if "skip" in query.lower() or "next" in query.lower():
+            skip_song()
+        if "pause" in query.lower() or "stop" in query.lower():
+            pause_song()
+        if "rewind" in query.lower():
+            rewind_song()
+        if "play playlist" in query.lower():
+            play_playlist(playlist_uri)
+        if "play" in query.lower() or "resume" in query.lower():
+            resume_song()
+
+    elif reply:
         conversation_history.append({"role": "user", "content": query})
         conversation_history.append({"role": "assistant", "content": reply})
 
@@ -67,19 +83,3 @@ def assistant(query):
                         loop.close()
                     if os.path.exists("response.mp3"):
                         os.remove("response.mp3")
-
-        if any(word in query.lower() for word in wake_words) and any(word in query.lower() for word in shutdown_words):
-            print("shutdown")
-            exit()
-        
-        if any(word in query.lower() for word in spotify_words):
-            if "skip" in query.lower() or "next" in query.lower():
-                skip_song()
-            if "pause" in query.lower() or "stop" in query.lower():
-                pause_song()
-            if "rewind" in query.lower():
-                rewind_song()
-            if "play playlist" in query.lower():
-                play_playlist(playlist_uri)
-            if "play" in query.lower() or "resume" in query.lower():
-                resume_song()
