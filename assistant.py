@@ -1,12 +1,12 @@
 from web_search import search_web
 from audio import generate_speech, play_audio
 from spotify import rewind_song, pause_song, skip_song, resume_song, play_playlist
+from spotify_id import playlist_uri
 import asyncio
 import os
 import ollama
 
 conversation_history = []
-playlist_uri = "spotify:playlist:7JAEb1zT2r9FEmYD6Gr8RH?si=08b07f353756472f&nd=1&dlsi=413d4dd0e8f14ac3"
 
 def query_llama(query):
     import prompt  # prompt should be in prompt.py
