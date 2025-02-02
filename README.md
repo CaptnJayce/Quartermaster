@@ -1,7 +1,6 @@
 # Quartermaster 
 
 TODO:
-- The web_search works, but doesnt comply with google TOS. Will need to seek alternative
 - Add commands for:
     - Restart (maybe)
     - Create file
