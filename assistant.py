@@ -1,7 +1,6 @@
 from web_search import search_web
 from audio import generate_speech, play_audio
-from spotify import rewind_song, pause_song, skip_song, resume_song, play_playlist
-from spotify_id import playlist_uri
+import spotify
 import asyncio
 import os
 import ollama
@@ -26,7 +25,7 @@ def query_llama(query):
 def assistant(query):
     wake_words = ["qt", "quartermaster", "cutie"] # will add option to customise later
     shutdown_words = ["shutdown", "shut down", "exit", "quit"]
-    spotify_words = ["skip", "next", "pause", "stop", "rewind", "play", "resume", "playlist"]
+    spotify_words = ["skip", "next", "pause", "stop", "rewind", "play", "resume", "playlist", "like", "favourite"]
     
     reply = query_llama(query)
 
@@ -36,15 +35,15 @@ def assistant(query):
     
     if any(word in query.lower() for word in spotify_words):
         if "skip" in query.lower() or "next" in query.lower():
-            skip_song()
+            spotify.skip_song()
         if "pause" in query.lower() or "stop" in query.lower():
-            pause_song()
+            spotify.pause_song()
         if "rewind" in query.lower():
-            rewind_song()
-        if "play playlist" in query.lower():
-            play_playlist(playlist_uri)
+            spotify.rewind_song()
         if "play" in query.lower() or "resume" in query.lower():
-            resume_song()
+            spotify.resume_song()
+        if "like" in query.lower() or "favourite" in query.lower():
+            spotify.like_song()
 
     elif reply:
         conversation_history.append({"role": "user", "content": query})

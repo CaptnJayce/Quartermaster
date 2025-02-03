@@ -1,7 +1,8 @@
 import spotipy
 import spotipy.util
-from spotipy.oauth2 import SpotifyOAuth
 import spotify_id
+from spotipy.oauth2 import SpotifyOAuth
+from spotify_id import playlist_uri
 
 # Spotify credentials should be defined in spotify_id.py
 # spotify_id.py contains:
@@ -13,7 +14,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     client_id=spotify_id.SPOTIFY_CLIENT_ID,
     client_secret=spotify_id.SPOTIFY_CLIENT_SECRET,
     redirect_uri=spotify_id.SPOTIFY_REDIRECT_URI,
-    scope="user-library-read user-read-playback-state user-modify-playback-state"
+    scope="user-library-read user-read-playback-state user-modify-playback-state user-library-modify user-read-currently-playing"
 ))
 
 # Get User's device
@@ -51,13 +52,11 @@ def resume_song():
             sp.pause_playback(device_id=device_id)
         sp.start_playback(device_id=device_id)
 
-# Play playlist
-def play_playlist(playlist_uri):
+# Like currently playing song
+def like_song():
     device_id = get_device_id()
     if device_id:
-        try:
-            sp.start_playback(device_id=device_id, context_uri=playlist_uri)
-        except spotipy.exceptions.SpotifyException as e:
-            print(f"Error starting playback: {e}")
-    else:
-        print("No active device found.")
+        current_playback = sp.current_playback()
+        if current_playback and current_playback['is_playing']:
+            track_id = current_playback["item"]["id"]
+            sp.current_user_saved_tracks_add([track_id])
