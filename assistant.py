@@ -6,6 +6,7 @@ import os
 import ollama
 
 conversation_history = []
+mode_int = 1
 
 def query_llama(query):
     import prompt  # prompt should be in prompt.py
@@ -26,26 +27,24 @@ def assistant(query):
     wake_words = ["qt", "quartermaster", "cutie"] # will add option to customise later
     shutdown_words = ["shutdown", "shut down", "exit", "quit"]
     spotify_words = ["skip", "next", "pause", "stop", "rewind", "play", "resume", "playlist", "like", "favourite"]
-    
+      
     reply = query_llama(query)
 
+    if "query mode" in query.lower():
+        print("query mode")
+        mode_int = 1
+    if "music mode" in query.lower():
+        print("music mode")
+        mode_int = 2
+    if "silent mode" in query.lower():
+        print("silent mode")
+        mode_int = 3
+    
     if any(word in query.lower() for word in wake_words) and any(word in query.lower() for word in shutdown_words):
         print("shutdown")
         exit()
     
-    if any(word in query.lower() for word in spotify_words):
-        if "skip" in query.lower() or "next" in query.lower():
-            spotify.skip_song()
-        if "pause" in query.lower() or "stop" in query.lower():
-            spotify.pause_song()
-        if "rewind" in query.lower():
-            spotify.rewind_song()
-        if "play" in query.lower() or "resume" in query.lower():
-            spotify.resume_song()
-        if "like" in query.lower() or "favourite" in query.lower():
-            spotify.like_song()
-
-    elif reply:
+    if mode_int == 1: ## Query mode
         conversation_history.append({"role": "user", "content": query})
         conversation_history.append({"role": "assistant", "content": reply})
 
@@ -82,3 +81,19 @@ def assistant(query):
                         loop.close()
                     if os.path.exists("response.mp3"):
                         os.remove("response.mp3")
+    
+    if mode_int == 2: ## Music mode
+        if any(word in query.lower() for word in spotify_words):
+            if "skip" in query.lower() or "next" in query.lower():
+                spotify.skip_song()
+            if "pause" in query.lower() or "stop" in query.lower():
+                spotify.pause_song()
+            if "rewind" in query.lower():
+                spotify.rewind_song()
+            if "play" in query.lower() or "resume" in query.lower():
+                spotify.resume_song()
+            if "like" in query.lower() or "favourite" in query.lower():
+                spotify.like_song()
+        
+    if mode_int == 3: ## Silent mode
+        pass
