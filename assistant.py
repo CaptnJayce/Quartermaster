@@ -23,7 +23,9 @@ def query_llama(query):
         print(f"Error querying Ollama: {e}")
         return None
 
-def assistant(query):
+def assistant(query):   
+    global mode_int
+    
     wake_words = ["qt", "quartermaster", "cutie"] # will add option to customise later
     shutdown_words = ["shutdown", "shut down", "exit", "quit"]
     spotify_words = ["skip", "next", "pause", "stop", "rewind", "play", "resume", "playlist", "like", "favourite"]
