@@ -18,4 +18,4 @@ if __name__ == "__main__":
         if query:
             assistant(query)
         else:
-            break
+            pass
