@@ -1,6 +1,6 @@
 from web_search import search_web
 from audio import generate_speech, play_audio
-import spotify
+import music
 import asyncio
 import os
 import ollama
@@ -23,13 +23,13 @@ def query_llama(query):
         print(f"Error querying Ollama: {e}")
         return None
 
-def assistant(query):   
+def assistant(query):
     global mode_int
-    
+
     wake_words = ["qt", "quartermaster", "cutie"] # will add option to customise later
     shutdown_words = ["shutdown", "shut down", "exit", "quit"]
     spotify_words = ["skip", "next", "pause", "stop", "rewind", "play", "resume", "playlist", "like", "favourite"]
-      
+
     reply = query_llama(query)
 
     if "query mode" in query.lower():
@@ -41,11 +41,11 @@ def assistant(query):
     if "silent mode" in query.lower():
         print("silent mode")
         mode_int = 3
-    
+
     if any(word in query.lower() for word in wake_words) and any(word in query.lower() for word in shutdown_words):
         print("shutdown")
         exit()
-    
+
     if mode_int == 1: ## Query mode
         conversation_history.append({"role": "user", "content": query})
         conversation_history.append({"role": "assistant", "content": reply})
@@ -83,7 +83,7 @@ def assistant(query):
                         loop.close()
                     if os.path.exists("response.mp3"):
                         os.remove("response.mp3")
-    
+
     if mode_int == 2: ## Music mode
         if any(word in query.lower() for word in spotify_words):
             if "skip" in query.lower() or "next" in query.lower():
@@ -96,6 +96,6 @@ def assistant(query):
                 spotify.resume_song()
             if "like" in query.lower() or "favourite" in query.lower():
                 spotify.like_song()
-        
+
     if mode_int == 3: ## Silent mode
-        pass
+        pas
