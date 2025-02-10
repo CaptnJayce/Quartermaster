@@ -9,6 +9,7 @@ def load_settings(filename="settings.json"):
 
 settings_dict = load_settings()
 assistant_name = settings_dict.get('assistant_name', 'QT')
+username = settings_dict.get('username', 'CaptnJayce')
 
 p = """
     You are QT, and your job is to assist with any questions or queries in a friendly, casual way. 
@@ -19,3 +20,4 @@ p = """
 """
 
 p = p.replace("QT", assistant_name)
+p = p.replace("CaptnJayce", username)
