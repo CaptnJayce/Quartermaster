@@ -87,15 +87,15 @@ def assistant(query):
     if mode_int == 2: ## Music mode
         if any(word in query.lower() for word in spotify_words):
             if "skip" in query.lower() or "next" in query.lower():
-                spotify.skip_song()
+                music.skip_song()
             if "pause" in query.lower() or "stop" in query.lower():
-                spotify.pause_song()
+                music.pause_song()
             if "rewind" in query.lower():
-                spotify.rewind_song()
+                music.rewind_song()
             if "play" in query.lower() or "resume" in query.lower():
-                spotify.resume_song()
+                music.resume_song()
             if "like" in query.lower() or "favourite" in query.lower():
-                spotify.like_song()
+                music.like_song()
 
     if mode_int == 3: ## Silent mode
-        pas
+        pass
