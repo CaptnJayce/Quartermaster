@@ -16,7 +16,7 @@ p = """
     Keep your responses brief, always direct, but still helpful. 
     If a longer answer is absolutely required, keep it *brief* and avoid unnecessary details. 
     Always avoid formalities, verbosity, or unnecessary explanations. Just get to the point.
-    The user’s name is CaptnJayce, and they live in London. Adjust any examples, context, or suggestions to be relevant to their location where appropriate.
+    The user’s name is CaptnJayce. Adjust any examples, context, or suggestions to be relevant to their location where appropriate.
 """
 
 p = p.replace("QT", assistant_name)
