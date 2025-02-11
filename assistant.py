@@ -1,3 +1,4 @@
+import settings
 from web_search import search_web
 from audio import generate_speech, play_audio
 import music
@@ -25,9 +26,7 @@ def query_llama(query):
 
 def assistant(query):
     global mode_int
-
-    wake_words = ["qt", "quartermaster", "cutie"] # will add option to customise later
-    shutdown_words = ["shutdown", "shut down", "exit", "quit"]
+    
     spotify_words = ["skip", "next", "pause", "stop", "rewind", "play", "resume", "playlist", "like", "favourite"]
 
     reply = query_llama(query)
@@ -41,9 +40,8 @@ def assistant(query):
     if "silent mode" in query.lower():
         print("silent mode")
         mode_int = 3
-
-    if any(word in query.lower() for word in wake_words) and any(word in query.lower() for word in shutdown_words):
-        print("shutdown")
+            
+    if query.lower() == "assistant exit":
         exit()
 
     if mode_int == 1: ## Query mode
