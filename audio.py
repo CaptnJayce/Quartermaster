@@ -1,5 +1,6 @@
 import pygame
 import edge_tts
+import time
 
 # currently using EmilyNeural
 VOICES = ['en-AU-NatashaNeural', 'en-CA-ClaraNeural', 'en-GB-LibbyNeural', 'en-IN-NeerjaNeural', 'en-IE-EmilyNeural']
@@ -22,12 +23,11 @@ def play_audio(file_path):
     pygame.mixer.music.stop()
     pygame.mixer.quit()
 
-def listen_for_audio(prompt="Listening..."):
+def listen_for_audio():
     import speech_recognition as sr
 
     r = sr.Recognizer()
     with sr.Microphone() as source:
-        print(prompt)
         audio = r.listen(source)
         said = ""
         try:
@@ -38,11 +38,9 @@ def listen_for_audio(prompt="Listening..."):
     return said
 
 def listen_with_timer(timeout):
-    import time
-    print(f"{timeout} seconds to speak...")
     start_time = time.time()
     while time.time() - start_time < timeout:
-        query = listen_for_audio(prompt="Listening...")
+        query = listen_for_audio()
         if query.strip():
             return query
     return None
