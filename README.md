@@ -1,29 +1,30 @@
-# Quartermaster 
+# Quartermaster | Assistive AI
 
-TODO:
-- Add modes:
-    - Music mode
-        - Allow for user to play media files 
-        - Spotify control
-        - Maybe youtube integration
-    - Query mode
-        - Allow for user to search the web
-        - General questions and conversation
-    - Silent mode
-        - Effectively a standby mode
-        - Nothing happens until you switch to another mode
-    No mode will be selected by default
+## Introduction
+Quartermaster is a personal AI Assistant written in Python. It uses a variety of Python libraries to help with web scraping, TTS/STT, media control, and more. 
 
-- Add commands for:
-    - Create file
-    - Modify file
-    - Will add more later 
-  
-- Modify the prompt further
+To prevent overscoping the initial development of this project, I am sticking with the three aforementioned uses and will expand it more when I believe it is in a useable state. 
 
-Endgame:
-- When starting the program, asks user for:
-    - Playlists to control
-    - Allow changing of voice
-    - Will add more later
+## Install and Setup
+Eventually, I will turn this into an application so it's usable for any user, but for now:
 
+Ensure pip is installed and that you are in the correct directory after cloning
+
+Run command:\
+```pip install -r requirements.txt```
+
+Then:\
+```python main.py```
+
+## Current Features
+Spotify control\
+Web scraping\
+(Decent) Conversational ability\
+Text to Speech & Speech to Text
+
+## Upcoming Features
+I will change the Spotify control into a media player, so that it fits a wider use case and doesn't require spotify API.
+
+System control, so that it can create, modify, delete, and open files upon request.
+
+Choice between terminal control and a GUI. 
