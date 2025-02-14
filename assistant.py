@@ -1,7 +1,6 @@
-import settings
 from web_search import search_web
 from audio import generate_speech, play_audio
-import music
+from media_controller import forward, rewind, playpause
 import asyncio
 import os
 import ollama
@@ -26,16 +25,14 @@ def query_llama(query):
 
 def assistant(query):
     global mode_int
-    
-    spotify_words = ["skip", "next", "pause", "stop", "rewind", "play", "resume", "playlist", "like", "favourite"]
 
     reply = query_llama(query)
 
     if "query mode" in query.lower():
         print("query mode")
         mode_int = 1
-    if "music mode" in query.lower():
-        print("music mode")
+    if "media mode" in query.lower():
+        print("media mode")
         mode_int = 2
     if "silent mode" in query.lower():
         print("silent mode")
@@ -82,18 +79,18 @@ def assistant(query):
                     if os.path.exists("response.mp3"):
                         os.remove("response.mp3")
 
-    if mode_int == 2: ## Music mode
-        if any(word in query.lower() for word in spotify_words):
-            if "skip" in query.lower() or "next" in query.lower():
-                music.skip_song()
-            if "pause" in query.lower() or "stop" in query.lower():
-                music.pause_song()
-            if "rewind" in query.lower():
-                music.rewind_song()
-            if "play" in query.lower() or "resume" in query.lower():
-                music.resume_song()
-            if "like" in query.lower() or "favourite" in query.lower():
-                music.like_song()
+    if mode_int == 2: ## Media mode
+        if "play" in query.lower() or "resume" in query.lower():
+            playpause()
+
+        if "pause" in query.lower() or "stop" in query.lower():
+            playpause()
+
+        if "rewind" in query.lower() or "previous" in query.lower():
+            rewind()
+
+        if "next" in query.lower() or "forwad" in query.lower():
+            forward()
 
     if mode_int == 3: ## Silent mode
         pass
