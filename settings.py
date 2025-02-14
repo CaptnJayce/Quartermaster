@@ -24,7 +24,3 @@ def assistant_name(settings):
 def custom_prompt(settings):
     print("Would you like to add a custom prompt? (Leave blank for no)")
     settings['custom_prompt'] = input("Enter: ").lower() == "yes"
-
-def music_control(settings):
-    print("Will you use Spotify for music? (Leave blank for no)")
-    settings['use_spotify'] = input("Enter: ").lower() == "yes"
