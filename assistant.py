@@ -26,7 +26,6 @@ def query_llama(query):
 def assistant(query):
     global mode_int
 
-    reply = query_llama(query)
 
     if "query mode" in query.lower():
         print("query mode")
@@ -42,6 +41,8 @@ def assistant(query):
         exit()
 
     if mode_int == 1: ## Query mode
+        reply = query_llama(query)
+
         conversation_history.append({"role": "user", "content": query})
         conversation_history.append({"role": "assistant", "content": reply})
 
