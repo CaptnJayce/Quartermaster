@@ -89,7 +89,7 @@ def assistant(query):
         if "rewind" in query.lower() or "previous" in query.lower():
             rewind()
 
-        if "next" in query.lower() or "forwad" in query.lower():
+        if "next" in query.lower() or "forward" in query.lower():
             forward()
 
     if mode_int == 3: ## Silent mode
