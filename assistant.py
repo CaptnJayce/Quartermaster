@@ -43,7 +43,7 @@ def assistant(query):
     if mode_int == 1: ## Query mode
         reply = query_llama(query)
 
-        conversation_history.append({"role": "user", "content": query})
+        conversation_history.append({"role": "user", "content": reply})
         conversation_history.append({"role": "assistant", "content": reply})
 
         if "search" not in query.lower():
@@ -51,7 +51,7 @@ def assistant(query):
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
-                loop.run_until_complete(generate_speech(reply))
+                loop.run_until_complete(generate_speech(str(reply)))
                 play_audio("response.mp3")
             finally:
                 loop.close()
@@ -59,7 +59,7 @@ def assistant(query):
             if os.path.exists("response.mp3"):
                 os.remove("response.mp3")
 
-        if "search" in query.lower() or "search the web" in reply.lower():
+        if "search" in query.lower() or "search the web" in query.lower():
             search_results = search_web(query)
             if search_results:
                 relevant_info = ""
