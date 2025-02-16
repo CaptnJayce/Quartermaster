@@ -1,12 +1,20 @@
 from web_search import search_web
 from audio import generate_speech, play_audio
 from media_controller import forward, rewind, playpause
+from enum import Enum, auto
 import asyncio
 import os
 import ollama
 
 conversation_history = []
-mode_int = 1
+
+class Mode(Enum):
+    QUERY = auto()
+    MEDIA = auto()
+    SILENT = auto()
+
+
+mode = Mode.QUERY
 
 def query_llama(query):
     import prompt  # prompt should be in prompt.py
@@ -24,23 +32,22 @@ def query_llama(query):
         return None
 
 def assistant(query):
-    global mode_int
-
+    global mode 
 
     if "query mode" in query.lower():
+        mode = Mode.QUERY
         print("query mode")
-        mode_int = 1
     if "media mode" in query.lower():
+        mode = Mode.MEDIA
         print("media mode")
-        mode_int = 2
     if "silent mode" in query.lower():
+        mode = Mode.SILENT
         print("silent mode")
-        mode_int = 3
             
     if query.lower() == "assistant exit":
         exit()
 
-    if mode_int == 1: ## Query mode
+    if mode == Mode.QUERY: ## Query mode
         reply = query_llama(query)
 
         conversation_history.append({"role": "user", "content": reply})
@@ -59,14 +66,14 @@ def assistant(query):
             if os.path.exists("response.mp3"):
                 os.remove("response.mp3")
 
-        if "search" in query.lower() or "search the web" in query.lower():
+        if "search" in query.lower():
             search_results = search_web(query)
             if search_results:
                 relevant_info = ""
                 for idx, result in enumerate(search_results[:3], 1):
                     relevant_info += f"Title: {result['title']}\nLink: {result['link']}\nSnippet: {result['snippet']}\n\n"
 
-                formatted_query = f"Please summarize the following search results into a concise, human-readable summary:\n\n{relevant_info}"
+                formatted_query = f" Please provide a concise summary of the following information as short as possible. Focus on the key points and avoid unnecessary details:\n\n{relevant_info}"
                 summary = query_llama(formatted_query)
                 if summary:
                     print(summary + "\n")
@@ -80,7 +87,7 @@ def assistant(query):
                     if os.path.exists("response.mp3"):
                         os.remove("response.mp3")
 
-    if mode_int == 2: ## Media mode
+    if mode == Mode.MEDIA: ## Media mode
         if "play" in query.lower() or "resume" in query.lower():
             playpause()
 
@@ -93,5 +100,5 @@ def assistant(query):
         if "next" in query.lower() or "forward" in query.lower():
             forward()
 
-    if mode_int == 3: ## Silent mode
+    if mode == Mode.SILENT: ## Silent mode
         pass
