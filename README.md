@@ -17,14 +17,12 @@ Then:\
 ```python main.py```
 
 ## Current Features
-Spotify control\
+Media control\
 Web scraping\
 (Decent) Conversational ability\
 Text to Speech & Speech to Text
 
 ## Upcoming Features
-I will change the Spotify control into a media player, so that it fits a wider use case and doesn't require spotify API.
-
 System control, so that it can create, modify, delete, and open files upon request.
 
 Choice between terminal control and a GUI. 
