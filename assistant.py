@@ -1,4 +1,3 @@
-import asyncio
 import os
 from enum import Enum, auto
 from web_search import search_web
@@ -6,7 +5,6 @@ from audio import generate_speech, play_audio
 from media_controller import forward, rewind, playpause
 import ollama
 
-# Use Enum for modes
 class Mode(Enum):
     QUERY = auto()
     MEDIA = auto()
